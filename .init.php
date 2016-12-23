@@ -99,6 +99,7 @@ function Import($start = -1) {
 			// no more data
 			// TODO add agent for next period
 			// return "";
+			$start = 0;
 		}
 	}
 
