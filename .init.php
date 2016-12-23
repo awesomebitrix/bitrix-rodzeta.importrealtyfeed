@@ -34,10 +34,14 @@ function Import() {
 		// fetch feed
 		$client = new HttpClient();
 		$client->download($currentOptions["src_url"], FILE_FEED);
+		Log("load file");
+		Log("init import");
+		//...
+	} else {
+		// run import chunk
+		Log("start next chunk");
+		//...
 	}
-
-	// run import chunk
-	Log("start next chunk");
 
 	return __FUNCTION__ . "();";
 }
