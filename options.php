@@ -57,6 +57,10 @@ $tabControl->begin();
 
 	<?php $tabControl->beginNextTab() ?>
 
+	<tr class="heading">
+		<td colspan="2">Куда импортировать</td>
+	</tr>
+
 	<tr>
 		<td class="adm-detail-content-cell-l" width="50%">
 			<label>Инфоблок</label>
