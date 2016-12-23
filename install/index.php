@@ -62,7 +62,15 @@ class rodzeta_importrealtyfeed extends CModule {
 			$APPLICATION->ThrowException(Loc::getMessage("RODZETA_REQUIREMENTS_BITRIX_UTF8"));
 			return false;
 		}
-
+		$agentId = CAgent::AddAgent(
+			"Rodzeta\\Importrealtyfeed\\Import();",
+			"rodzeta.importrealtyfeed",
+			"N", 60, "", "Y"
+		);
+		if (!$agentId) {
+			$APPLICATION->ThrowException(Loc::getMessage("RODZETA_ERROR_ADDING_AGENTS"));
+			return false;
+		}
 		ModuleManager::registerModule($this->MODULE_ID);
 		RegisterModuleDependences("main", "OnPageStart", $this->MODULE_ID);
 	}
