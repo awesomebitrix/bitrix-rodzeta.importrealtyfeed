@@ -75,15 +75,16 @@ function Import($start = -1) {
 		foreach (Slice(ParseXml(FILE_FEED), $start, $limit) as $i => $offer) {
 			$hasData = true;
 			$data = [
-				"INTERNAL_ID" => (string)$offer->attributes()["internal-id"],
 				"NAME" => (string)$offer->name,
-				"URL" => (string)$offer->url,
 				"DETAIL_TEXT" => (string)$offer->description,
+				"DATE_CREATE" => (string)$offer->{"creation-date"},
+				"TIMESTAMP_X" => (string)$offer->{"last-update-date"},
+				//
+				"INTERNAL_ID" => (string)$offer->attributes()["internal-id"],
+				"URL" => (string)$offer->url,
 				"FLOOR" => (string)$offer->floor,
 				"PRICE" => (string)$offer->price->value,
 				"CURRENCY" => (string)$offer->price->currency,
-				"CREATED" => (string)$offer->{"creation-date"},
-				"MODIFIED" => (string)$offer->{"last-update-date"},
 				"DEAL_STATUS" => (string)$offer->{"deal-status"},
 			];
 			$images = [];
@@ -94,6 +95,7 @@ function Import($start = -1) {
 			Log($data);
 		}
 		$start += $limit;
+		Log("Next = $start");
 		if (!$hasData) {
 			Log("End import.");
 			// no more data
