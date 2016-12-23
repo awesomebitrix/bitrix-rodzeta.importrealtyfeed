@@ -61,20 +61,45 @@ function Import($start = -1) {
 		"src_url" => "http://anton.citrus-dev.ru/import.xml",
 		"num" => 3,
 	];
+	$limit = (int)$currentOptions["num"];
 
-	if ($start < 0 || !file_exists(FILE_FEED)) {
-		$start = 0;
-		// fetch feed
+	if ($start < 0 || !file_exists(FILE_FEED)) { // fetch feed
 		$client = new HttpClient();
 		$client->download($currentOptions["src_url"], FILE_FEED);
-		Log("load file");
-		Log("init import");
-		//...
-	} else {
-		$start = (int)$start + (int)$currentOptions["num"];
-		// run import chunk
-		Log("start next chunk");
-		//...
+		Log("Load file...");
+		Log("Init import...");
+		$start = 0;
+	} else { // run import chunk
+		Log("Start next chunk $start:$limit...");
+		$hasData = false;
+		foreach (Slice(ParseXml(FILE_FEED), $start, $limit) as $i => $offer) {
+			$hasData = true;
+			$data = [
+				"INTERNAL_ID" => (string)$offer->attributes()["internal-id"],
+				"NAME" => (string)$offer->name,
+				"URL" => (string)$offer->url,
+				"DETAIL_TEXT" => (string)$offer->description,
+				"FLOOR" => (string)$offer->floor,
+				"PRICE" => (string)$offer->price->value,
+				"CURRENCY" => (string)$offer->price->currency,
+				"CREATED" => (string)$offer->{"creation-date"},
+				"MODIFIED" => (string)$offer->{"last-update-date"},
+				"DEAL_STATUS" => (string)$offer->{"deal-status"},
+			];
+			$images = [];
+			foreach ($offer->image as $image) {
+				$images[] = (string)$image;
+			}
+			$data["IMAGE"] = json_encode($images, true);
+			Log($data);
+		}
+		$start += $limit;
+		if (!$hasData) {
+			Log("End import.");
+			// no more data
+			// TODO add agent for next period
+			// return "";
+		}
 	}
 
 	return __FUNCTION__ . "($start);";
