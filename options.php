@@ -68,7 +68,7 @@ $tabControl->begin();
 
 	<tr>
 		<td class="adm-detail-content-cell-l" width="50%">
-			<label>Раздел</label>
+			<label>Корневой раздел</label>
 		</td>
 		<td class="adm-detail-content-cell-r" width="50%">
 			TODO
