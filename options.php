@@ -21,7 +21,7 @@ $request = $context->getRequest();
 
 Loc::loadMessages(__FILE__);
 
-$tabControl = new CAdminTabControl("tabControl", [
+$tabControl = new \CAdminTabControl("tabControl", [
   [
 		"DIV" => "edit1",
 		"TAB" => Loc::getMessage("RODZETA_IMPORTREALTYFEED_MAIN_TAB_SET"),
@@ -41,7 +41,7 @@ if ($request->isPost() && check_bitrix_sessid()) {
 		$currentOptions["x"] = $request->getPost("y");
 		Option::set("rodzeta.importrealtyfeed", "default", json_encode($currentOptions));
 
-		CAdminMessage::showMessage([
+		\CAdminMessage::showMessage([
 	    "MESSAGE" => Loc::getMessage("RODZETA_IMPORTREALTYFEED_OPTIONS_SAVED"),
 	    "TYPE" => "OK",
 	  ]);
