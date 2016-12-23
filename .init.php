@@ -21,7 +21,7 @@ function Log($data) {
 }
 
 function ParseXml($xmlFile) {
-	$xml = new XMLReader();
+	$xml = new \XMLReader();
 	$xml->open($xmlFile);
 	while ($xml->read()) {
 		if ($xml->nodeType == XMLReader::ELEMENT && $xml->name == "offer") {
