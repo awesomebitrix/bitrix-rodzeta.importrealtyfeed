@@ -59,11 +59,19 @@ $tabControl->begin();
 
 	<tr>
 		<td class="adm-detail-content-cell-l" width="50%">
-			<label>Настройка 1</label>
+			<label>Инфоблок</label>
 		</td>
 		<td class="adm-detail-content-cell-r" width="50%">
-			<input name="move_css" value="Y" type="checkbox"
-				<?= Option::get("rodzeta.importrealtyfeed", "move_css") == "Y"? "checked" : "" ?>>
+			TODO
+		</td>
+	</tr>
+
+	<tr>
+		<td class="adm-detail-content-cell-l" width="50%">
+			<label>Раздел</label>
+		</td>
+		<td class="adm-detail-content-cell-r" width="50%">
+			TODO
 		</td>
 	</tr>
 
