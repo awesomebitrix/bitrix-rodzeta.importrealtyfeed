@@ -25,5 +25,6 @@ function Import() {
 	// TODO use config
 	// run import chunk
 	Log("start next chunk");
-}
 
+	return __FUNCTION__ . "();";
+}
