@@ -24,7 +24,7 @@ function ParseXml($xmlFile) {
 	$xml = new \XMLReader();
 	$xml->open($xmlFile);
 	while ($xml->read()) {
-		if ($xml->nodeType == XMLReader::ELEMENT && $xml->name == "offer") {
+		if ($xml->nodeType == \XMLReader::ELEMENT && $xml->name == "offer") {
 			yield simplexml_load_string($xml->readOuterXML());
 		}
 	}
