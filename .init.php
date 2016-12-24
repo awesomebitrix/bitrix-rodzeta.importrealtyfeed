@@ -55,18 +55,74 @@ function Slice($collection, $offset = 0, $length = -1) {
 	}
 }
 
+function ImportElement($data, $currentOptions) {
+	$element = new \CIBlockElement();
+	$fields = [
+		"NAME" => $data["NAME"],
+		"DETAIL_TEXT" => $data["DETAIL_TEXT"],
+		"IBLOCK_SECTION" => $currentOptions["section"],
+	];
+	foreach ($fields as $k => $v) { // unset element fields from properties
+		unset($data[$k]);
+	}
+	// find element by INTERNAL_ID
+	$res = \CIBlockElement::GetList(
+		["SORT" => "ASC"],
+		[
+			"IBLOCK_ID" => $currentOptions["iblock_id"],
+			"PROPERTY" => [
+				"INTERNAL_ID" => $data["INTERNAL_ID"],
+			]
+		],
+		false,
+		false,
+		["ID", "*"]
+	);
+	if ($row = $res->GetNextElement()) {
+		$item = $row->GetFields();
+		Log("UPDATE INTERNAL_ID: {$data['INTERNAL_ID']}");
+		// update fields
+		$ok = $element->Update($item["ID"], $fields);
+		if ($ok !== false) {
+			Log("Updated ID: {$item['ID']}");
+		} else {
+			Log("Error $element->LAST_ERROR");
+		}
+		// update properties
+		\CIBlockElement::SetPropertyValuesEx($item["ID"], $item["IBLOCK_ID"], $data);
+	} else {
+		Log("ADD INTERNAL_ID: {$data['INTERNAL_ID']}");
+		$fields = array_merge($fields, [
+			"IBLOCK_ID" => $currentOptions["iblock_id"],
+			"CODE" => \Cutil::translit($fields["NAME"], "ru"),
+			"ACTIVE" => "Y",
+			"PROPERTY_VALUES" => $data
+		]);
+		$itemId = $element->Add($fields);
+		if ($itemId !== false) {
+			Log("Added ID: $itemId");
+		} else {
+			Log("Error: $element->LAST_ERROR");
+		}
+	}
+}
+
 function Import($start = -1) {
+	\CModule::IncludeModule("iblock");
+
 	// TODO get from options
 	$currentOptions = [
 		"src_url" => "http://anton.citrus-dev.ru/import.xml",
 		"num" => 3,
+		"iblock_id" => 5,
+		"section" => 5,
 	];
 	$limit = (int)$currentOptions["num"];
 
 	if ($start < 0 || !file_exists(FILE_FEED)) { // fetch feed
 		$client = new HttpClient();
 		$client->download($currentOptions["src_url"], FILE_FEED);
-		Log("Load file...");
+		Log("Load file {$currentOptions['src_url']} -> " . FILE_FEED . "...");
 		Log("Init import...");
 		$start = 0;
 	} else { // run import chunk
@@ -77,8 +133,6 @@ function Import($start = -1) {
 			$data = [
 				"NAME" => (string)$offer->name,
 				"DETAIL_TEXT" => (string)$offer->description,
-				"DATE_CREATE" => (string)$offer->{"creation-date"},
-				"TIMESTAMP_X" => (string)$offer->{"last-update-date"},
 				//
 				"INTERNAL_ID" => (string)$offer->attributes()["internal-id"],
 				"URL" => (string)$offer->url,
@@ -86,22 +140,24 @@ function Import($start = -1) {
 				"PRICE" => (string)$offer->price->value,
 				"CURRENCY" => (string)$offer->price->currency,
 				"DEAL_STATUS" => (string)$offer->{"deal-status"},
+				"CREATION_DATE" => (string)$offer->{"creation-date"},
+				"LAST_UPDATE_DATE" => (string)$offer->{"last-update-date"},
 			];
 			$images = [];
 			foreach ($offer->image as $image) {
 				$images[] = (string)$image;
 			}
 			$data["IMAGE"] = json_encode($images, true);
-			Log($data);
+			ImportElement($data, $currentOptions);
 		}
 		$start += $limit;
 		Log("Next = $start");
 		if (!$hasData) {
+			// reset import
+			//!!! $start = -1;
 			Log("End import.");
-			// no more data
-			// TODO add agent for next period
-			// return "";
-			$start = 0;
+
+			// TODO add agent for next period and return "";
 		}
 	}
 
