@@ -108,8 +108,6 @@ function ImportElement($data, $currentOptions) {
 }
 
 function Import($start = -1) {
-	\CModule::IncludeModule("iblock");
-
 	// TODO get from options
 	$currentOptions = [
 		"src_url" => "http://anton.citrus-dev.ru/import.xml",
@@ -126,6 +124,7 @@ function Import($start = -1) {
 		Log("Init import...");
 		$start = 0;
 	} else { // run import chunk
+		\CModule::IncludeModule("iblock");
 		Log("Start next chunk $start:$limit...");
 		$hasData = false;
 		foreach (Slice(ParseXml(FILE_FEED), $start, $limit) as $i => $offer) {
