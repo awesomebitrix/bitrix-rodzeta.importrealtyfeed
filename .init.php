@@ -140,8 +140,8 @@ function Import($start = -1) {
 				"PRICE" => (string)$offer->price->value,
 				"CURRENCY" => (string)$offer->price->currency,
 				"DEAL_STATUS" => (string)$offer->{"deal-status"},
-				"CREATION_DATE" => (string)$offer->{"creation-date"},
-				"LAST_UPDATE_DATE" => (string)$offer->{"last-update-date"},
+				"CREATION_DATE" => date("Y-m-d H:i:s", strtotime((string)$offer->{"creation-date"})),
+				"LAST_UPDATE_DATE" => date("Y-m-d H:i:s", strtotime((string)$offer->{"last-update-date"})),
 			];
 			$images = [];
 			foreach ($offer->image as $image) {
@@ -156,8 +156,7 @@ function Import($start = -1) {
 			// reset import
 			//!!! $start = -1;
 			Log("End import.");
-
-			// TODO add agent for next period and return "";
+			return ""; // TODO add agent for next period
 		}
 	}
 
