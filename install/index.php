@@ -51,6 +51,20 @@ class rodzeta_importrealtyfeed extends CModule {
 		$this->PARTNER_URI = "http://rodzeta.ru/";
 	}
 
+	function InstallFiles() {
+		CopyDirFiles(
+	    $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/" . $this->MODULE_ID . "/install/admin/" . $this->MODULE_ID,
+	    $_SERVER["DOCUMENT_ROOT"] . "/bitrix/admin/" . $this->MODULE_ID,
+	    true, true
+    );
+		return true;
+	}
+
+	function UnInstallFiles() {
+		DeleteDirFilesEx("/bitrix/admin/" . $this->MODULE_ID);
+		return true;
+	}
+
 	function DoInstall() {
 		// check module requirements
 		global $APPLICATION;
@@ -64,6 +78,7 @@ class rodzeta_importrealtyfeed extends CModule {
 		}
 		ModuleManager::registerModule($this->MODULE_ID);
 		RegisterModuleDependences("main", "OnPageStart", $this->MODULE_ID);
+		$this->InstallFiles();
 		CAgent::AddAgent(
 			"Rodzeta\\Importrealtyfeed\\Import(-1);",
 			"rodzeta.importrealtyfeed",
@@ -76,6 +91,7 @@ class rodzeta_importrealtyfeed extends CModule {
 			"Rodzeta\\Importrealtyfeed\\Import(-1);",
 			"rodzeta.importrealtyfeed"
 		);
+		$this->UnInstallFiles();
 		UnRegisterModuleDependences("main", "OnPageStart", $this->MODULE_ID);
 		ModuleManager::unregisterModule($this->MODULE_ID);
 	}

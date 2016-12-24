@@ -15,6 +15,7 @@ if (!$USER->isAdmin()) {
 	$APPLICATION->authForm("ACCESS DENIED");
 }
 
+\CModule::IncludeModule("iblock");
 $app = Application::getInstance();
 $context = $app->getContext();
 $request = $context->getRequest();
@@ -37,9 +38,9 @@ $currentOptions = json_decode(Option::get("rodzeta.importrealtyfeed", "default",
 
 if ($request->isPost() && check_bitrix_sessid()) {
 	if (!empty($request->getPost("save"))) {
-		// TODO
-		$currentOptions["x"] = $request->getPost("y");
-		Option::set("rodzeta.importrealtyfeed", "default", json_encode($currentOptions));
+		$currentOptions["iblock_content"] = $request->getPost("iblock_content");
+		$currentOptions["section_content"] = $request->getPost("section_content");
+		Option::set("rodzeta.importrealtyfeed", "default", json_encode($currentOptions, true));
 
 		\CAdminMessage::showMessage([
 	    "MESSAGE" => Loc::getMessage("RODZETA_IMPORTREALTYFEED_OPTIONS_SAVED"),
@@ -51,6 +52,22 @@ if ($request->isPost() && check_bitrix_sessid()) {
 $tabControl->begin();
 
 ?>
+
+<script>
+function RodzetaImportrealtyfeedUpdate($selectDest) {
+	var $selectIblock = document.getElementById("iblock_content");
+	var iblockId = $selectIblock.value;
+	var selectedOption = $selectDest.getAttribute("data-value");
+	BX.ajax.loadJSON("/bitrix/admin/rodzeta.importrealtyfeed/sectionoptions.php?iblock_id=" + iblockId, function (data) {
+		var html = ["<option value=''>(выберите раздел)</option>"];
+		for (var k in data) {
+			var selected = selectedOption == k? "selected" : "";
+			html.push("<option " + selected + " value='" + k + "'>" + data[k] + "</option>");
+		}
+		$selectDest.innerHTML = html.join("\n");
+	});
+};
+</script>
 
 <form method="post" action="<?= sprintf('%s?mid=%s&lang=%s', $request->getRequestedPage(), urlencode($mid), LANGUAGE_ID) ?>" type="get">
 	<?= bitrix_sessid_post() ?>
@@ -66,7 +83,16 @@ $tabControl->begin();
 			<label>Инфоблок</label>
 		</td>
 		<td class="adm-detail-content-cell-r" width="50%">
-			TODO
+			<?= GetIBlockDropDownListEx(
+					$currentOptions["iblock_content"],
+					"iblock_type",
+					"iblock_content",
+					[
+						"MIN_PERMISSION" => "R",
+					],
+					"",
+					"RodzetaImportrealtyfeedUpdate(document.getElementById('rodzeta-importrealtyfeed-catalogsection-id'));"
+				) ?>
 		</td>
 	</tr>
 
@@ -75,7 +101,10 @@ $tabControl->begin();
 			<label>Корневой раздел</label>
 		</td>
 		<td class="adm-detail-content-cell-r" width="50%">
-			TODO
+			<select name="section_content" id="rodzeta-importrealtyfeed-catalogsection-id"
+					data-value="<?= $currentOptions["section_content"] ?>">
+				<option value="">(выберите раздел)</option>
+			</select>
 		</td>
 	</tr>
 
@@ -90,3 +119,10 @@ $tabControl->begin();
 <?php
 
 $tabControl->end();
+
+?>
+
+<script>
+RodzetaImportrealtyfeedUpdate(document.getElementById(
+	"rodzeta-importrealtyfeed-catalogsection-id"));
+</script>
