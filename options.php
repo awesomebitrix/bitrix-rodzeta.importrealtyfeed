@@ -108,6 +108,20 @@ function RodzetaImportrealtyfeedUpdate($selectDest) {
 		</td>
 	</tr>
 
+	<tr class="heading">
+		<td colspan="2">Настройки импорта</td>
+	</tr>
+
+	<tr>
+		<td class="adm-detail-content-cell-l" width="50%">
+			<label>URL источника</label>
+		</td>
+		<td class="adm-detail-content-cell-r" width="50%">
+			<input name="src_url" type="text" value="<?= htmlspecialcharsex($currentOptions["src_url"]) ?>" size="40"
+				placeholder="http://example.org/path1/example1.xml">
+		</td>
+	</tr>
+
 	<?php
 	 $tabControl->buttons();
   ?>
