@@ -30,7 +30,13 @@ $tabControl = new \CAdminTabControl("tabControl", [
   ],
 ]);
 
-$currentOptions = json_decode(Option::get("rodzeta.importrealtyfeed", "default", []), true);
+$currentOptions = array_merge(
+	[
+		"interval" => 3600,
+		"num" => 3,
+	],
+	json_decode(Option::get("rodzeta.importrealtyfeed", "default", "[]"), true)
+);
 
 ?>
 
@@ -38,9 +44,12 @@ $currentOptions = json_decode(Option::get("rodzeta.importrealtyfeed", "default",
 
 if ($request->isPost() && check_bitrix_sessid()) {
 	if (!empty($request->getPost("save"))) {
-		$currentOptions["iblock_content"] = $request->getPost("iblock_content");
-		$currentOptions["section_content"] = $request->getPost("section_content");
-		Option::set("rodzeta.importrealtyfeed", "default", json_encode($currentOptions, true));
+		$currentOptions["iblock_id"] = $request->getPost("iblock_id");
+		$currentOptions["section"] = $request->getPost("section");
+		$currentOptions["src_url"] = $request->getPost("src_url");
+		$currentOptions["interval"] = $request->getPost("interval");
+		$currentOptions["num"] = $request->getPost("num");
+		Option::set("rodzeta.importrealtyfeed", "default", json_encode($currentOptions));
 
 		\CAdminMessage::showMessage([
 	    "MESSAGE" => Loc::getMessage("RODZETA_IMPORTREALTYFEED_OPTIONS_SAVED"),
@@ -55,7 +64,7 @@ $tabControl->begin();
 
 <script>
 function RodzetaImportrealtyfeedUpdate($selectDest) {
-	var $selectIblock = document.getElementById("iblock_content");
+	var $selectIblock = document.getElementById("iblock_id");
 	var iblockId = $selectIblock.value;
 	var selectedOption = $selectDest.getAttribute("data-value");
 	BX.ajax.loadJSON("/bitrix/admin/rodzeta.importrealtyfeed/sectionoptions.php?iblock_id=" + iblockId, function (data) {
@@ -84,9 +93,9 @@ function RodzetaImportrealtyfeedUpdate($selectDest) {
 		</td>
 		<td class="adm-detail-content-cell-r" width="50%">
 			<?= GetIBlockDropDownListEx(
-					$currentOptions["iblock_content"],
+					$currentOptions["iblock_id"],
 					"iblock_type",
-					"iblock_content",
+					"iblock_id",
 					[
 						"MIN_PERMISSION" => "R",
 					],
@@ -101,8 +110,8 @@ function RodzetaImportrealtyfeedUpdate($selectDest) {
 			<label>Корневой раздел</label>
 		</td>
 		<td class="adm-detail-content-cell-r" width="50%">
-			<select name="section_content" id="rodzeta-importrealtyfeed-catalogsection-id"
-					data-value="<?= $currentOptions["section_content"] ?>">
+			<select name="section" id="rodzeta-importrealtyfeed-catalogsection-id"
+					data-value="<?= $currentOptions["section"] ?>">
 				<option value="">(выберите раздел)</option>
 			</select>
 		</td>
@@ -119,6 +128,32 @@ function RodzetaImportrealtyfeedUpdate($selectDest) {
 		<td class="adm-detail-content-cell-r" width="50%">
 			<input name="src_url" type="text" value="<?= htmlspecialcharsex($currentOptions["src_url"]) ?>" size="40"
 				placeholder="http://example.org/path1/example1.xml">
+		</td>
+	</tr>
+
+	<tr>
+		<td class="adm-detail-content-cell-l" width="50%">
+			<label>Периодичность</label>
+		</td>
+		<td class="adm-detail-content-cell-r" width="50%">
+			<select name="interval">
+				<option value="600" <?= $currentOptions["interval"] == 600? "selected" : "" ?>>1 раз в 10 минут</option>
+				<option value="3600" <?= $currentOptions["interval"] == 3600? "selected" : "" ?>>1 раз в час</option>
+				<option value="86400" <?= $currentOptions["interval"] == 86400? "selected" : "" ?>>1 раз в день</option>
+			</select>
+		</td>
+	</tr>
+
+	<tr>
+		<td class="adm-detail-content-cell-l" width="50%">
+			<label>Число элементов на шаг импорта</label>
+		</td>
+		<td class="adm-detail-content-cell-r" width="50%">
+			<select name="num">
+				<option value="10" <?= $currentOptions["num"] == 10? "selected" : "" ?>>10</option>
+				<option value="100" <?= $currentOptions["num"] == 100? "selected" : "" ?>>100</option>
+				<option value="1000" <?= $currentOptions["num"] == 1000? "selected" : "" ?>>1000</option>
+			</select>
 		</td>
 	</tr>
 

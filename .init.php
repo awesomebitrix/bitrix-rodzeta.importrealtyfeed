@@ -7,7 +7,7 @@
 
 namespace Rodzeta\Importrealtyfeed;
 
-use Bitrix\Main\Web\HttpClient;
+use Bitrix\Main\{Web\HttpClient, Config\Option};
 
 const ID = "rodzeta.importrealtyfeed";
 const APP = __DIR__ . "/";
@@ -118,62 +118,60 @@ function ImportElement($data, $currentOptions) {
 }
 
 function Import($start = -1) {
-	// TODO get from options
-	$currentOptions = [
-		"src_url" => "http://anton.citrus-dev.ru/import.xml",
-		"num" => 3,
-		"iblock_id" => 5,
-		"section" => 5,
-	];
-	$limit = (int)$currentOptions["num"];
-
-	if ($start < 0 || !file_exists(FILE_FEED)) { // fetch feed
-		$client = new HttpClient();
-		Log("Load file {$currentOptions['src_url']} -> " . FILE_FEED . "...");
-		if (!$client->download($currentOptions["src_url"], FILE_FEED)) {
-			Log("Error loading src file.");
-		} else {
-			Log("Start import...");
-		}
-		$start = 0;
-	} else { // run import chunk
-		\CModule::IncludeModule("iblock");
-		Log("Start next chunk $start:$limit...");
-		$hasData = false;
-		foreach (Slice(ParseXml(FILE_FEED), $start, $limit) as $i => $offer) {
-			$hasData = true;
-			$creationDate = (string)$offer->{"creation-date"};
-			$lastUpdateDate = (string)$offer->{"last-update-date"};
-			$data = [
-				"NAME" => (string)$offer->name,
-				"DETAIL_TEXT" => (string)$offer->description,
-				//
-				"INTERNAL_ID" => (string)$offer->attributes()["internal-id"],
-				"URL" => (string)$offer->url,
-				"FLOOR" => (string)$offer->floor,
-				"PRICE" => (string)$offer->price->value,
-				"CURRENCY" => (string)$offer->price->currency,
-				"PERIOD" => (string)$offer->price->period,
-				"DEAL_STATUS" => (string)$offer->{"deal-status"},
-				"CREATION_DATE" => $creationDate? ConvertTimeStamp(strtotime($creationDate), "FULL") : "",
-				"LAST_UPDATE_DATE" => $lastUpdateDate? ConvertTimeStamp(strtotime($lastUpdateDate), "FULL") : "",
-			];
-			$images = [];
-			foreach ($offer->image as $image) {
-				$images[] = (string)$image;
+	$currentOptions = json_decode(Option::get("rodzeta.importrealtyfeed", "default", "[]"), true);
+	Log($currentOptions);
+	if (!empty($currentOptions["src_url"])) {
+		$limit = (int)$currentOptions["num"];
+		if ($start < 0 || !file_exists(FILE_FEED)) { // fetch feed
+			$client = new HttpClient();
+			Log("Load file {$currentOptions['src_url']} -> " . FILE_FEED . "...");
+			if (!$client->download($currentOptions["src_url"], FILE_FEED)) {
+				Log("Error loading src file.");
+			} else {
+				Log("Start import...");
 			}
-			$data["IMAGE"] = json_encode($images, true);
-			ImportElement($data, $currentOptions);
-		}
-		$start += $limit;
-		Log("Next = $start");
-		if (!$hasData) {
-			// reset import
-			//!!! $start = -1;
-			Log("End import.");
-			return ""; // TODO add agent for next period
+			$start = 0;
+		} else { // run import chunk
+			\CModule::IncludeModule("iblock");
+			Log("Start next chunk $start:$limit...");
+			$hasData = false;
+			foreach (Slice(ParseXml(FILE_FEED), $start, $limit) as $i => $offer) {
+				$hasData = true;
+				$creationDate = (string)$offer->{"creation-date"};
+				$lastUpdateDate = (string)$offer->{"last-update-date"};
+				$data = [
+					"NAME" => (string)$offer->name,
+					"DETAIL_TEXT" => (string)$offer->description,
+					//
+					"INTERNAL_ID" => (string)$offer->attributes()["internal-id"],
+					"URL" => (string)$offer->url,
+					"FLOOR" => (string)$offer->floor,
+					"PRICE" => (string)$offer->price->value,
+					"CURRENCY" => (string)$offer->price->currency,
+					"PERIOD" => (string)$offer->price->period,
+					"DEAL_STATUS" => (string)$offer->{"deal-status"},
+					"CREATION_DATE" => $creationDate? ConvertTimeStamp(strtotime($creationDate), "FULL") : "",
+					"LAST_UPDATE_DATE" => $lastUpdateDate? ConvertTimeStamp(strtotime($lastUpdateDate), "FULL") : "",
+				];
+				$images = [];
+				foreach ($offer->image as $image) {
+					$images[] = (string)$image;
+				}
+				$data["IMAGE"] = json_encode($images);
+				ImportElement($data, $currentOptions);
+			}
+			$start += $limit;
+			Log("Next = $start");
+			if (!$hasData) {
+				// reset import
+				//!!! $start = -1;
+				Log("End import.");
+				return ""; // TODO add agent for next period
+			}
 		}
 	}
-
+	else {
+		Log("Src url not defined.");
+	}
 	return __FUNCTION__ . "($start);";
 }
