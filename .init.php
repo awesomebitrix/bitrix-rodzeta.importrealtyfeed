@@ -56,6 +56,7 @@ function Slice($collection, $offset = 0, $length = -1) {
 }
 
 function ImportElement($data, $currentOptions) {
+	Log($data);
 	$element = new \CIBlockElement();
 	$fields = [
 		"NAME" => $data["NAME"],
