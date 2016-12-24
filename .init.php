@@ -140,8 +140,8 @@ function Import($start = -1) {
 				"PRICE" => (string)$offer->price->value,
 				"CURRENCY" => (string)$offer->price->currency,
 				"DEAL_STATUS" => (string)$offer->{"deal-status"},
-				"CREATION_DATE" => date("Y-m-d H:i:s", strtotime((string)$offer->{"creation-date"})),
-				"LAST_UPDATE_DATE" => date("Y-m-d H:i:s", strtotime((string)$offer->{"last-update-date"})),
+				"CREATION_DATE" => ConvertTimeStamp(strtotime((string)$offer->{"creation-date"}), "FULL"),
+				"LAST_UPDATE_DATE" => ConvertTimeStamp(strtotime((string)$offer->{"last-update-date"}), "FULL"),
 			];
 			$images = [];
 			foreach ($offer->image as $image) {
