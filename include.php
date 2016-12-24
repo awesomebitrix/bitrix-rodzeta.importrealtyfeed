@@ -9,6 +9,6 @@ namespace Rodzeta\Importrealtyfeed;
 
 defined("B_PROLOG_INCLUDED") and (B_PROLOG_INCLUDED === true) or die();
 
-use Bitrix\Main\{Loader, EventManager, Config\Option};
+//use Bitrix\Main\{Loader, EventManager, Config\Option};
 
 require __DIR__ . "/.init.php";

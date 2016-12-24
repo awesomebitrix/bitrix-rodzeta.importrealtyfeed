@@ -22,13 +22,22 @@ function Log($data) {
 
 function ParseXml($xmlFile) {
 	$xml = new \XMLReader();
-	$xml->open($xmlFile);
-	while ($xml->read()) {
-		if ($xml->nodeType == \XMLReader::ELEMENT && $xml->name == "offer") {
-			yield simplexml_load_string($xml->readOuterXML());
+	if ($xml->open($xmlFile)) {
+		while ($xml->read()) {
+			if ($xml->nodeType == \XMLReader::ELEMENT && $xml->name == "offer") {
+				$offer = simplexml_load_string($xml->readOuterXML());
+				if ($offer !== false) {
+					yield $offer;
+				} else {
+					Log("Error - xml node");
+					break;
+				}
+			}
 		}
+		$xml->close();
+	} else {
+		Log("Error - can't open xml-file $xmlFile");
 	}
-	$xml->close();
 }
 
 function Slice($collection, $offset = 0, $length = -1) {
@@ -120,9 +129,12 @@ function Import($start = -1) {
 
 	if ($start < 0 || !file_exists(FILE_FEED)) { // fetch feed
 		$client = new HttpClient();
-		$client->download($currentOptions["src_url"], FILE_FEED);
 		Log("Load file {$currentOptions['src_url']} -> " . FILE_FEED . "...");
-		Log("Init import...");
+		if (!$client->download($currentOptions["src_url"], FILE_FEED)) {
+			Log("Error loading src file.");
+		} else {
+			Log("Start import...");
+		}
 		$start = 0;
 	} else { // run import chunk
 		\CModule::IncludeModule("iblock");
@@ -130,6 +142,8 @@ function Import($start = -1) {
 		$hasData = false;
 		foreach (Slice(ParseXml(FILE_FEED), $start, $limit) as $i => $offer) {
 			$hasData = true;
+			$creationDate = (string)$offer->{"creation-date"};
+			$lastUpdateDate = (string)$offer->{"last-update-date"};
 			$data = [
 				"NAME" => (string)$offer->name,
 				"DETAIL_TEXT" => (string)$offer->description,
@@ -139,9 +153,10 @@ function Import($start = -1) {
 				"FLOOR" => (string)$offer->floor,
 				"PRICE" => (string)$offer->price->value,
 				"CURRENCY" => (string)$offer->price->currency,
+				"PERIOD" => (string)$offer->price->period,
 				"DEAL_STATUS" => (string)$offer->{"deal-status"},
-				"CREATION_DATE" => ConvertTimeStamp(strtotime((string)$offer->{"creation-date"}), "FULL"),
-				"LAST_UPDATE_DATE" => ConvertTimeStamp(strtotime((string)$offer->{"last-update-date"}), "FULL"),
+				"CREATION_DATE" => $creationDate? ConvertTimeStamp(strtotime($creationDate), "FULL") : "",
+				"LAST_UPDATE_DATE" => $lastUpdateDate? ConvertTimeStamp(strtotime($lastUpdateDate), "FULL") : "",
 			];
 			$images = [];
 			foreach ($offer->image as $image) {
