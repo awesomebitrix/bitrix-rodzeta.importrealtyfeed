@@ -170,10 +170,8 @@ function Import($start = -1) {
 			$start += $limit;
 			Log("Next = $start");
 			if (!$hasData) {
-				// reset import
-				//!!! $start = -1;
 				Log("End import.");
-				return ""; // TODO add agent for next period
+				return "";
 			}
 		}
 	}
