@@ -13,8 +13,10 @@ const ID = "rodzeta.importrealtyfeed";
 const APP = __DIR__ . "/";
 const LIB = APP  . "lib/";
 
-define(__NAMESPACE__ . "\LOG", $_SERVER["DOCUMENT_ROOT"]  . "/upload/.log_" . ID);
-define(__NAMESPACE__ . "\FILE_FEED", $_SERVER["DOCUMENT_ROOT"]  . "/upload/." . ID . "_file1.xml");
+define(__NAMESPACE__ . "\LOG",
+	$_SERVER["DOCUMENT_ROOT"]  . "/upload/.log_" . ID);
+define(__NAMESPACE__ . "\FILE_FEED",
+	$_SERVER["DOCUMENT_ROOT"]  . "/upload/." . ID . "_file1.xml");
 
 function Log($data) {
 	file_put_contents(LOG, date("Y-m-d H:i:s")
