@@ -102,7 +102,8 @@ function ImportElement($data, $currentOptions) {
 			Log("Error $element->LAST_ERROR");
 		}
 		// update properties
-		\CIBlockElement::SetPropertyValuesEx($item["ID"], $item["IBLOCK_ID"], $data);
+		\CIBlockElement::SetPropertyValuesEx(
+			$item["ID"], $item["IBLOCK_ID"], $data);
 	} else {
 		Log("ADD INTERNAL_ID: {$data['INTERNAL_ID']}");
 		$fields = array_merge($fields, [
@@ -121,7 +122,8 @@ function ImportElement($data, $currentOptions) {
 }
 
 function Import($start = -1) {
-	$currentOptions = json_decode(Option::get("rodzeta.importrealtyfeed", "default", "[]"), true);
+	$currentOptions = json_decode(Option::get(
+		"rodzeta.importrealtyfeed", "default", "[]"), true);
 	Log($currentOptions);
 	if (!empty($currentOptions["src_url"])) {
 		$limit = (int)$currentOptions["num"];
@@ -153,8 +155,10 @@ function Import($start = -1) {
 					"CURRENCY" => (string)$offer->price->currency,
 					"PERIOD" => (string)$offer->price->period,
 					"DEAL_STATUS" => (string)$offer->{"deal-status"},
-					"CREATION_DATE" => $creationDate? ConvertTimeStamp(strtotime($creationDate), "FULL") : "",
-					"LAST_UPDATE_DATE" => $lastUpdateDate? ConvertTimeStamp(strtotime($lastUpdateDate), "FULL") : "",
+					"CREATION_DATE" => $creationDate?
+						ConvertTimeStamp(strtotime($creationDate), "FULL") : "",
+					"LAST_UPDATE_DATE" => $lastUpdateDate?
+						ConvertTimeStamp(strtotime($lastUpdateDate), "FULL") : "",
 				];
 				$images = [];
 				foreach ($offer->image as $image) {
@@ -177,4 +181,29 @@ function Import($start = -1) {
 		Log("Src url not defined.");
 	}
 	return __FUNCTION__ . "($start);";
+}
+
+function StartImport() {
+	\CAgent::RemoveAgent(
+		"Rodzeta\\Importrealtyfeed\\Import(-1);",
+		"rodzeta.importrealtyfeed"
+	);
+	\CAgent::AddAgent(
+		"Rodzeta\\Importrealtyfeed\\Import(-1);",
+		"rodzeta.importrealtyfeed",
+		"N", 60, "", "Y"
+	);
+	return __FUNCTION__ . "();";
+}
+
+function UpdateImportPeriod($interval) {
+	\CAgent::RemoveAgent(
+		"Rodzeta\\Importrealtyfeed\\StartImport();",
+		"rodzeta.importrealtyfeed"
+	);
+	\CAgent::AddAgent(
+		"Rodzeta\\Importrealtyfeed\\StartImport();",
+		"rodzeta.importrealtyfeed",
+		"N", $interval, "", "Y"
+	);
 }

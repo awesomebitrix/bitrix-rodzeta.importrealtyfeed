@@ -79,18 +79,22 @@ class rodzeta_importrealtyfeed extends CModule {
 		ModuleManager::registerModule($this->MODULE_ID);
 		RegisterModuleDependences("main", "OnPageStart", $this->MODULE_ID);
 		$this->InstallFiles();
+		/*
 		CAgent::AddAgent(
 			"Rodzeta\\Importrealtyfeed\\Import(-1);",
 			"rodzeta.importrealtyfeed",
 			"N", 60, "", "Y"
 		);
+		*/
 	}
 
 	function DoUninstall() {
+		/*
 		CAgent::RemoveAgent(
 			"Rodzeta\\Importrealtyfeed\\Import(-1);",
 			"rodzeta.importrealtyfeed"
 		);
+		*/
 		$this->UnInstallFiles();
 		UnRegisterModuleDependences("main", "OnPageStart", $this->MODULE_ID);
 		ModuleManager::unregisterModule($this->MODULE_ID);

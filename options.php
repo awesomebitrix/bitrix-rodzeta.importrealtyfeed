@@ -50,6 +50,7 @@ if ($request->isPost() && check_bitrix_sessid()) {
 		$currentOptions["interval"] = $request->getPost("interval");
 		$currentOptions["num"] = $request->getPost("num");
 		Option::set("rodzeta.importrealtyfeed", "default", json_encode($currentOptions));
+		UpdateImportPeriod($currentOptions["interval"]);
 
 		\CAdminMessage::showMessage([
 	    "MESSAGE" => Loc::getMessage("RODZETA_IMPORTREALTYFEED_OPTIONS_SAVED"),
