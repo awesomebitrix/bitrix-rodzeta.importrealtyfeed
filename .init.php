@@ -196,14 +196,16 @@ function StartImport() {
 	return __FUNCTION__ . "();";
 }
 
-function UpdateImportPeriod($interval) {
+function Update($currentOptions) {
+	Option::set("rodzeta.importrealtyfeed", "default",
+		json_encode($currentOptions));
 	\CAgent::RemoveAgent(
 		"Rodzeta\\Importrealtyfeed\\StartImport();",
 		"rodzeta.importrealtyfeed"
 	);
-	\CAgent::AddAgent(
+	return \CAgent::AddAgent(
 		"Rodzeta\\Importrealtyfeed\\StartImport();",
 		"rodzeta.importrealtyfeed",
-		"N", $interval, "", "Y"
+		"N", $currentOptions["interval"], "", "Y"
 	);
 }
