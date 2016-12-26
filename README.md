@@ -9,6 +9,8 @@ https://yandex.ru/support/realty/partners/requirements.html
 
 ## Описание установки и настройки решения
 
-- задать урл в настройках
-- задать периодичность запуска импорта
-- задать кол-во импортируемых элементов за 1 шаг
+- пример настроек - https://github.com/rivetweb/bitrix-rodzeta.importrealtyfeed/blob/master/screenshots/001.png
+
+- экспортированый инфоблок со структурой https://github.com/rivetweb/bitrix-rodzeta.importrealtyfeed/blob/master/install/data/realtyfeeds.xml
+
+- тестирование - смотреть по логам
