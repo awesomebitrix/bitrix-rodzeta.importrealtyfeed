@@ -17,7 +17,8 @@ define(__NAMESPACE__ . "\LOG", $_SERVER["DOCUMENT_ROOT"]  . "/upload/.log_" . ID
 define(__NAMESPACE__ . "\FILE_FEED", $_SERVER["DOCUMENT_ROOT"]  . "/upload/." . ID . "_file1.xml");
 
 function Log($data) {
-	file_put_contents(LOG, date("Y-m-d H:i:s") . "\t" . print_r($data, true) . "\n", FILE_APPEND);
+	file_put_contents(LOG, date("Y-m-d H:i:s")
+		. "\t" . print_r($data, true) . "\n", FILE_APPEND);
 }
 
 function ParseXml($xmlFile) {
