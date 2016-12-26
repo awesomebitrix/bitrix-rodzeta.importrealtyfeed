@@ -182,10 +182,19 @@ function Import($start = -1) {
 }
 
 function StartImport() {
+	// remove importing agents
+	$res = \CAgent::GetList(["ID" => "DESC"], [
+		"NAME" => "Rodzeta\\Importrealtyfeed\\Import(%",
+	]);
+	while ($row = $res->Fetch()) {
+		\CAgent::Delete($row["ID"]);
+	}
+	/*
 	\CAgent::RemoveAgent(
 		"Rodzeta\\Importrealtyfeed\\Import(-1);",
 		"rodzeta.importrealtyfeed"
 	);
+	*/
 	\CAgent::AddAgent(
 		"Rodzeta\\Importrealtyfeed\\Import(-1);",
 		"rodzeta.importrealtyfeed",
